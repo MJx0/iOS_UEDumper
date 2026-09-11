@@ -39,6 +39,7 @@ public:
     uintptr_t GetGUObjectArrayPtr() const override
     {
         std::vector<std::pair<std::string, int>> idaPatterns = {
+            {"29 3D 10 12 08 01 09 4B ? ? ? ? ? ? ? ? 29 11 40 F9 29 D9 6A F8 0A 03 80 52", 8}, // New
             // FUObjectArray::FUObjectArray();
             {"94 E0 23 00 91 ? ? ? 94 08 7D 80 52", 0x11},
             {"00 E6 07 2F 00 00 00 FD 1F 08 00 B9 ? ? 80 52", 0xB4},
@@ -128,7 +129,14 @@ public:
             offsets.FProperty.ElementSize = offsets.FProperty.ArrayDim + sizeof(int32_t);
             offsets.FProperty.PropertyFlags = offsets.FProperty.ElementSize + sizeof(int32_t);
             offsets.FProperty.Offset_Internal = offsets.FProperty.PropertyFlags + sizeof(int64_t) + sizeof(int32_t);
-            offsets.FProperty.Size = offsets.FProperty.Offset_Internal + (sizeof(int32_t) * 3) + (sizeof(void *) * 4);
+            offsets.FProperty.Size = offsets.FProperty.Offset_Internal + (sizeof(int32_t) * 3) + (sizeof(void *) * 6);
+
+            offsets.FProperty.SubSetElement     = offsets.FProperty.Size - sizeof(void *);
+            offsets.FProperty.SubMapKey         = offsets.FProperty.Size;
+            offsets.FProperty.SubMapValue       = offsets.FProperty.Size + sizeof(void *);
+            offsets.FProperty.SubEnumUnderlying = offsets.FProperty.Size - sizeof(void *);
+            offsets.FProperty.SubEnumEnum       = offsets.FProperty.Size;
+            offsets.FProperty.SubFieldPathClass = offsets.FProperty.Size - sizeof(void *);
         }
 
         return &offsets;

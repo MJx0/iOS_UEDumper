@@ -1173,6 +1173,8 @@ UEPropTypeInfo UE_FProperty::GetType() const
         break;
     }
     case HASH("ObjectProperty"):
+    case HASH("ObjectPtrProperty"):
+    case HASH("EncryptedObjectProperty"):
     {
         auto obj = this->Cast<UE_FObjectPropertyBase>();
         type = {UEPropertyType::ObjectProperty, obj.GetTypeStr()};
@@ -1460,6 +1462,9 @@ std::string UE_FBoolProperty::GetTypeStr() const
 
 UE_FProperty UE_FEnumProperty::GetUnderlayingProperty() const
 {
+    uintptr_t ov = UEWrappers::GetOffsets()->FProperty.SubEnumUnderlying;
+    if (ov) return vm_rpm_ptr<UE_FProperty>(object + ov);
+
     static uintptr_t off = 0;
     if (off == 0)
     {
@@ -1484,6 +1489,13 @@ UE_FProperty UE_FEnumProperty::GetUnderlayingProperty() const
 
 UE_UEnum UE_FEnumProperty::GetEnum() const
 {
+    uintptr_t ov = UEWrappers::GetOffsets()->FProperty.SubEnumEnum;
+    if (ov)
+    {
+        auto e = vm_rpm_ptr<UE_UEnum>(object + ov);
+        return (e && e.IsA<UE_UEnum>()) ? e : nullptr;
+    }
+
     static uintptr_t off = 0;
     if (off == 0)
     {
@@ -1537,6 +1549,9 @@ std::string UE_FSoftClassProperty::GetTypeStr() const
 
 UE_FProperty UE_FSetProperty::GetElementProp() const
 {
+    uintptr_t ov = UEWrappers::GetOffsets()->FProperty.SubSetElement;
+    if (ov) return vm_rpm_ptr<UE_FProperty>(object + ov);
+
     static uintptr_t offset = 0;
     if (offset == 0)
     {
@@ -1552,6 +1567,9 @@ std::string UE_FSetProperty::GetTypeStr() const
 
 UE_FProperty UE_FMapProperty::GetKeyProp() const
 {
+    uintptr_t ov = UEWrappers::GetOffsets()->FProperty.SubMapKey;
+    if (ov) return vm_rpm_ptr<UE_FProperty>(object + ov);
+
     static uintptr_t offset = 0;
     if (offset == 0)
     {
@@ -1562,6 +1580,9 @@ UE_FProperty UE_FMapProperty::GetKeyProp() const
 
 UE_FProperty UE_FMapProperty::GetValueProp() const
 {
+    uintptr_t ov = UEWrappers::GetOffsets()->FProperty.SubMapValue;
+    if (ov) return vm_rpm_ptr<UE_FProperty>(object + ov);
+
     static uintptr_t offset = 0;
     if (offset == 0)
     {
@@ -1597,5 +1618,13 @@ UE_FName UE_FFieldPathProperty::GetPropertyName() const
 
 std::string UE_FFieldPathProperty::GetTypeStr() const
 {
+    uintptr_t ov = UEWrappers::GetOffsets()->FProperty.SubFieldPathClass;
+    if (ov)
+    {
+        auto fc = vm_rpm_ptr<UE_FFieldClass>(object + ov);
+        std::string cls = fc ? fc.GetName() : "";
+        if (cls.empty()) cls = "None";
+        return "struct TFieldPath<F" + cls + ">";
+    }
     return "struct TFieldPath<F" + GetPropertyName().GetName() + ">";
 }

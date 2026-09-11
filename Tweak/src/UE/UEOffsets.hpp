@@ -111,6 +111,13 @@ struct UE_Offsets
         uintptr_t PropertyFlags = 0;
         uintptr_t Offset_Internal = 0;
         uintptr_t Size = 0;
+        // Optional per-game overrides; 0 = use FindSubFPropertyBaseOffset().
+        uintptr_t SubSetElement = 0;
+        uintptr_t SubMapKey = 0;
+        uintptr_t SubMapValue = 0;
+        uintptr_t SubEnumUnderlying = 0;
+        uintptr_t SubEnumEnum = 0;
+        uintptr_t SubFieldPathClass = 0;
     } FProperty;
 
     std::string ToString() const;
